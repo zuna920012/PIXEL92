@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tu Juego de Píxeles</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        h1 { color: #333; }
+        .panel {
+            margin-bottom: 20px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        /* Contenedor de la cuadrícula */
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(10, 30px); /* 10 columnas de 30px */
+            grid-gap: 2px;
+            background-color: #ccc;
+            padding: 5px;
+            border-radius: 4px;
+        }
+        /* Estilo de cada píxel */
+        .pixel {
+            width: 30px;
+            height: 30px;
+            background-color: #fff;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .pixel:hover:not(.owned) {
+            background-color: #e0e0e0;
+        }
+        /* Estados del píxel */
+        .pixel.selected {
+            background-color: #3498db; /* Azul al seleccionar */
+        }
+        .pixel.owned {
+            background-color: #2ecc71; /* Verde al comprar */
+            cursor: not-allowed;
+        }
+        button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover { background-color: #27ae60; }
+    </style>
+</head>
+<body>
+
+    <h1>Mundo Píxel: Compra tu espacio</h1>
+    
+    <div class="panel">
+        <p>Precio por píxel: <strong>$1.00 USD</strong></p>
+        <p>Píxeles seleccionados: <span id="count">0</span></p>
+        <p>Total a pagar: <strong>$<span id="total">0</span>.00</strong></p>
+        <button id="buy-btn">Simular Compra</button>
+    </div>
+
+    <!-- Aquí se generará la cuadrícula -->
+    <div id="grid"></div>
+
+    <script>
+        const GRID_SIZE = 100; // 10x10 = 100 píxeles
+        const PIXEL_PRICE = 1;
+        const gridContainer = document.getElementById('grid');
+        const countDisplay = document.getElementById('count');
+        const totalDisplay = document.getElementById('total');
+        const buyBtn = document.getElementById('buy-btn');
+
+        let selectedPixels = [];
+
+        // Generar los píxeles dinámicamente
+        for (let i = 0; i < GRID_SIZE; i++) {
+            const pixel = document.createElement('div');
+            pixel.classList.add('pixel');
+            pixel.dataset.id = i;
+
+            pixel.addEventListener('click', () => {
+                // Si ya está comprado, no hacer nada
+                if (pixel.classList.contains('owned')) return;
+
+                // Alternar selección
+                if (pixel.classList.contains('selected')) {
+                    pixel.classList.remove('selected');
+                    selectedPixels = selectedPixels.filter(id => id !== i);
+                } else {
+                    pixel.classList.add('selected');
+                    selectedPixels.push(i);
+                }
+                
+                // Actualizar interfaz
+                countDisplay.innerText = selectedPixels.length;
+                totalDisplay.innerText = selectedPixels.length * PIXEL_PRICE;
+            });
+
+            gridContainer.appendChild(pixel);
+        }
+
+        // Simular el proceso de compra
+        buyBtn.addEventListener('click', () => {
+            if (selectedPixels.length === 0) {
+                alert('Por favor, selecciona al menos un píxel primero.');
+                return;
+            }
+
+            // Convertir seleccionados en dueños
+            const selectedElements = document.querySelectorAll('.pixel.selected');
+            selectedElements.forEach(el => {
+                el.classList.remove('selected');
+                el.classList.add('owned');
+            });
+
+            alert(`¡Éxito! Has comprado ${selectedPixels.length} píxeles.`);
+            
+            // Reiniciar contador
+            selectedPixels = [];
+            countDisplay.innerText = 0;
+            totalDisplay.innerText = 0;
+        });
+    </script>
+</body>
+</html>
